@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Jogador</title>
+    <link rel="stylesheet" href="stylelo.css">
+    <meta name="description" content="Login do jogador - Interclasse CELC" />
+  
+  </head>
+  <body>
+    <header>
+      <button class="menu-icon" id="menuBtn">☰</button>
+      <h2>Interclasse CELC</h2>
+      <button
+        class="perfil-btn"
+        onclick="location.href='../perfil-al/perfil.html'"
+      >
+        Perfil
+      </button>
+    </header>
+
+    <aside id="menu-lateral" aria-hidden="true">
+      <h3>Menu</h3>
+      <nav>
+         <button class="fechar-menu" id="menu-close" aria-label="Fechar menu">
+          ✖
+        </button>
+        <ul style="list-style: none; padding: 0; margin-top: 18px">
+          <li style="margin: 10px 0">
+            <a href="../index.html" style="color: #fff; text-decoration: none"
+              >Início</a
+            >
+          </li>
+          <li style="margin: 10px 0">
+            <a href="inicio.html" style="color: #fff; text-decoration: none"
+              >Página Jogador</a
+            >
+          </li>
+          <li style="margin: 10px 0">
+            <a href="cadastro.html" style="color: #fff; text-decoration: none"
+              >Cadastro</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main>
+      <div class="card">
+        <h1>Login</h1>
+        <div style="height: 12px"></div>
+        <label for="email">E-mail</label><br />
+        <input
+          id="email"
+          type="text"
+          class="form"
+          placeholder="Ex: @escola"
+          required
+        />
+
+        <div style="height: 6px"></div>
+        <label for="nome">Nome completo</label><br />
+        <input id="nome" type="text" class="form" required />
+
+        <label for="turma">Turma</label><br />
+        <input id="turma" type="text" class="form" required />
+
+        <label for="idade">Idade</label><br />
+        <input id="idade" type="text" class="form" required />
+
+        <div style="height: 10px"></div>
+        <button class="btn-primary" id="entrarBtn" data-target="../inicio-al/inicio.html">
+          Entrar
+        </button>
+
+        <div style="height: 16px"></div>
+        <p>Se não é cadastrado:</p>
+        <button
+          class="btn-secondary"
+          id="cadastrarBtn"
+          data-target="cadastro.html"
+        >
+          Cadastrar-se
+        </button>
+      </div>
+    </main>
+
+    <footer
+      style="
+        background: var(--verde);
+        color: #fff;
+        padding: 12px 18px;
+        text-align: center;
+      "
+    >
+      <p>&copy; Nicolas A.</p>
+    </footer>
+
+    <div class="toast" id="toast">Redirecionando...</div>
+
+    <script src="login.js">
+      
+    </script>
+  </body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastro - Jogador</title>
+    <link rel="stylesheet" href="stylecad.css">
+    
+  </head>
+  <body>
+    <header>
+      <button class="menu-icon" id="menuBtn">☰</button>
+      <h2>Interclasse CELC</h2>
+      <button
+        class="perfil-btn"
+        onclick="location.href='../perfil-al/perfil.html'"
+      >
+        Perfil
+      </button>
+    </header>
+
+    <aside id="menu-lateral" aria-hidden="true">
+      <h3>Menu</h3>
+      <nav>
+        <ul style="list-style: none; padding: 0; margin-top: 18px">
+          <li style="margin: 10px 0">
+            <a href="inicio.html" style="color: #fff; text-decoration: none"
+              >Página Inicial</a
+            >
+          </li>
+          <li style="margin: 10px 0">
+            <a href="login.html" style="color: #fff; text-decoration: none"
+              >Login</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main>
+      <div class="card">
+        <h1>Cadastro</h1>
+        <label for="nome">Nome completo</label><br />
+        <input id="nome" class="form" type="text" required />
+
+        <label for="turma">Turma</label><br />
+        <input id="turma" class="form" type="text" required />
+
+        <label for="time">Time</label><br />
+        <input id="time" class="form" type="text" required />
+
+        <label for="posicao">Posição</label><br />
+        <input id="posicao" class="form" type="text" required />
+
+        <div style="height: 12px"></div>
+        <button class="btn-primary" data-target="../inicio-al/inicio.html">Entrar</button>
+      </div>
+    </main>
+
+    <footer
+      style="
+        background: var(--verde);
+        color: #fff;
+        padding: 12px 18px;
+        text-align: center;
+      "
+    >
+      <p>&copy; Nicolas A.</p>
+    </footer>
+
+    <div class="toast" id="toast">Redirecionando...</div>
+
+    <script src="cadastro.js">
+     
+    </script>
+  </body>
+</html>

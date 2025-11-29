@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perfil - Interclasse CELC</title>
+    <meta name="description" content="Perfil do usuário - Interclasse CELC" />
+    <link rel="stylesheet" href="perfil.css">
+  </head>
+  <body>
+    <header>
+      <button class="menu-icon" id="menuBtn" aria-label="Abrir menu">☰</button>
+      <h2>Interclasse CELC</h2>
+      <button class="perfil-btn" onclick="location.href='../index.html'">
+        Início
+      </button>
+    </header>
+
+    <aside id="menu-lateral" aria-hidden="true">
+      <h3 style="color: #fff">Menu</h3>
+      <nav>
+        <ul style="list-style: none; padding: 0; margin-top: 18px">
+          <li style="margin: 10px 0">
+            <a href="../index.html" style="color: #fff; text-decoration: none"
+              >Início</a
+            >
+          </li>
+          <li style="margin: 10px 0">
+            <a
+              href="../pgcadastro/inicio.html"
+              style="color: #fff; text-decoration: none"
+              >Página Jogador</a
+            >
+          </li>
+          <li style="margin: 10px 0">
+            <a
+              href="../admcadastro/Inicio.html"
+              style="color: #fff; text-decoration: none"
+              >Área Admin</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main>
+      <div class="profile-card">
+        <div class="avatar">NA</div>
+        <h1 style="margin: 4px 0">Seu perfil</h1>
+        <div class="info">
+          <h3>Nome</h3>
+          <p>Nome do usuário aqui</p>
+          <h3>Turma</h3>
+          <p>Turma X</p>
+          <h3>Idade</h3>
+          <p>-- anos</p>
+          <h3>Posição</h3>
+          <p>Posição do jogador</p>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="editarBtn">Editar perfil</button>
+          <button
+            class="btn btn-ghost"
+            id="voltarBtn"
+            data-target="../index.html"
+          >
+            Sair
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <footer
+      style="
+        background: var(--verde);
+        color: #fff;
+        padding: 12px 18px;
+        text-align: center;
+      "
+    >
+      <p>&copy; Nicolas A.</p>
+    </footer>
+
+    <div class="toast" id="toast">Ação realizada</div>
+
+    <script>
+      const menuBtn = document.getElementById("menuBtn");
+      const menu = document.getElementById("menu-lateral");
+      menuBtn.addEventListener("click", () => {
+        const open = menu.classList.toggle("open");
+        menu.setAttribute("aria-hidden", String(!open));
+      });
+
+      function showToast(msg = "Ação realizada") {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        clearTimeout(t._hide);
+        t._hide = setTimeout(() => t.classList.remove("show"), 1200);
+      }
+
+      // button interactions
+      document.getElementById("editarBtn").addEventListener("click", () => {
+        showToast("Funcionalidade em breve");
+      });
+      document
+        .getElementById("voltarBtn")
+        .addEventListener("click", function (e) {
+          const target = this.getAttribute("data-target");
+          showToast("Redirecionando...");
+          setTimeout(() => (location.href = target), 700);
+        });
+    </script>
+  </body>
+</html>

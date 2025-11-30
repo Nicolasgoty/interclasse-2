@@ -16,7 +16,7 @@ function showToast() {
         if (usuario === usuarioCorreto && senha === senhaCorreta) {
           // mostra feedback, depois navega
           showToast();
-          setTimeout(() => (window.location.href = "Inicio.html"), 800);
+          setTimeout(() => (window.location.href = "inicio.html"), 800);
         } else {
           mensagemErro.textContent = "Usuário ou senha incorretos!";
         }
@@ -25,3 +25,4 @@ function showToast() {
       document
         .getElementById("entrarBtn")
         .addEventListener("click", verificarLogin);
+

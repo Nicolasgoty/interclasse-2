@@ -25,6 +25,3 @@ function showToast() {
       document
         .getElementById("entrarBtn")
         .addEventListener("click", verificarLogin);
-
-
-

@@ -1,60 +1,247 @@
+<!-- Página de Edição de Jogos (editar-jogos.html) -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JOGOS</title>
-    <link rel="stylesheet" href="jogos.css">
+    <title>EDITAR JOGOS</title>
+    <link rel="stylesheet" href="jogos.css"> <!-- Reutilizar CSS se possível -->
+    <style>
+        .jogo-container {
+            margin: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        input, select {
+            margin: 5px;
+        }
+        .cronometro {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .gols-registrados {
+            margin-top: 10px;
+        }
+        .gol-item {
+            background: #f9f9f9;
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
-      <header>
-      <button class="menu-icon" id="menuBtn">☰</button>
-      <h2>Interclasse CELC</h2>
-      <button
-        class="perfil-btn"
-        onclick="location.href='../perfil-adm/perfil.html'"
-      >
-        👤 Perfil
-      </button>
+    <header>
+        <button class="menu-icon" id="menuBtn">☰</button>
+        <h2>Interclasse CELC</h2>
+        <button
+            class="perfil-btn"
+            onclick="location.href='../perfil-adm/perfil.html'"
+        >
+            👤 Perfil
+        </button>
     </header>
-
-    <aside id="menu-lateral" aria-hidden="true">
-      <h3>Menu</h3>
-      <nav>
-        <ul style="list-style: none; padding: 0; margin-top: 18px">
-          <li style="margin: 10px 0">
-            <a href="../index.html" style="color: #fff; text-decoration: none"
-              >Início</a
-            >
-          </li>
-          <li style="margin: 10px 0">
-            <a
-              href="../pgjogos/jogos.html"
-              style="color: #fff; text-decoration: none"
-              >Jogos</a
-            >
-          </li>
-          <li style="margin: 10px 0">
-            <a href="../Times.html" style="color: #fff; text-decoration: none"
-              >Times</a
-            >
-          </li>
-        </ul>
-      </nav>
-    </aside>
-
     <main>
-      <h1>Jogos </h1>
-    <button> <P>time A    x    Time B</P></button>
-      <img
-        src="../celular 1.png"
-        alt="Ilustração celular"
-        style="margin-top: 22px"
-      />
+        <h1>Editar Estatísticas dos Jogos</h1>
+        <div id="jogosContainer"></div>
+        <button onclick="salvarAlteracoes()">Salvar Alterações</button>
+        <br><br>
+        <button onclick="location.href='sorteio.html'">Voltar ao Sorteio</button>
+        <button onclick="location.href='resultados-tempo-real.html'">Ver Resultados em Tempo Real</button>
     </main>
-
-    <footer>
-      <p>&copy;Nicolas A.</p>
+    <footer
+        style="
+            background: var(--verde);
+            color: #fff;
+            padding: 12px 18px;
+            text-align: center;
+        "
+    >
+        <p>&copy;2°DSB</p>
     </footer>
+
+    <script>
+        let cronometros = {}; // Para armazenar os timers de cada jogo
+
+        function carregarJogos() {
+            const jogos = JSON.parse(localStorage.getItem('jogosSorteados')) || [];
+            const container = document.getElementById('jogosContainer');
+            container.innerHTML = '';
+            
+            jogos.forEach((jogo, index) => {
+                const div = document.createElement('div');
+                div.className = 'jogo-container';
+                div.innerHTML = `
+                    <h3>Jogo ${jogo.id}: ${jogo.time1} vs ${jogo.time2}</h3>
+                    <label>Placar ${jogo.time1}: <input type="number" id="placar1-${index}" value="${jogo.placar1}"></label>
+                    <label>Placar ${jogo.time2}: <input type="number" id="placar2-${index}" value="${jogo.placar2}"></label>
+                    <label>Status: 
+                        <select id="status-${index}">
+                            <option value="Não iniciado" ${jogo.status === 'Não iniciado' ? 'selected' : ''}>Não iniciado</option>
+                            <option value="Em andamento" ${jogo.status === 'Em andamento' ? 'selected' : ''}>Em andamento</option>
+                            <option value="Finalizado" ${jogo.status === 'Finalizado' ? 'selected' : ''}>Finalizado</option>
+                        </select>
+                    </label>
+                    <br>
+                    <label>Jogadores ${jogo.time1} (separados por vírgula): <input type="text" id="jogadores1-${index}" value="${(jogo.jogadores1 || []).join(', ')}"></label>
+                    <br>
+                    <label>Jogadores ${jogo.time2} (separados por vírgula): <input type="text" id="jogadores2-${index}" value="${(jogo.jogadores2 || []).join(', ')}"></label>
+                    <br>
+                    <div class="cronometro" id="cronometro-${index}">${jogo.tempo || '00:00'}</div>
+                    <button onclick="iniciarCronometro(${index})">Iniciar</button>
+                    <button onclick="pausarCronometro(${index})">Pausar</button>
+                    <button onclick="resetarCronometro(${index})">Resetar</button>
+                    <br><br>
+                    <h4>Registrar Gol</h4>
+                    <select id="jogador-gol-${index}"><option value="">Selecione Jogador que fez o gol</option>
+                      <option value="">Selecione Jogador que fez o gol</option></select>
+                 
+                    <select id="jogador-assistencia-${index}"><option value="">Selecione Jogador que deu assistência</option></select>
+                    <button onclick="registrarGol(${index})">Registrar Gol</button>
+                    <div class="gols-registrados" id="gols-${index}"></div>
+                `;
+                container.appendChild(div);
+                
+                // Preencher dropdowns de jogadores
+                atualizarDropdownsJogadores(index, jogo);
+                
+                // Exibir gols registrados
+                exibirGols(index, jogo.gols || []);
+            });
+        }
+        
+        function atualizarDropdownsJogadores(index, jogo) {
+            const jogadores = (jogo.jogadores1 || []).concat(jogo.jogadores2 || []);
+            const selectGol = document.getElementById(`jogador-gol-${index}`);
+            const selectAssistencia = document.getElementById(`jogador-assistencia-${index}`);
+            
+            selectGol.innerHTML = '<option value="">Selecione Jogador que fez o gol</option>';
+            selectAssistencia.innerHTML = '<option value="">Selecione Jogador que deu assistência</option>';
+            
+            jogadores.forEach(jogador => {
+                selectGol.innerHTML += `<option value="${jogador}">${jogador}</option>`;
+                selectAssistencia.innerHTML += `<option value="${jogador}">${jogador}</option>`;
+            });
+        }
+        
+        function iniciarCronometro(index) {
+            if (cronometros[index]) clearInterval(cronometros[index]);
+            let segundos = tempoParaSegundos(document.getElementById(`cronometro-${index}`).textContent);
+            const maxSegundos = 20 * 60; // 20 minutos
+            cronometros[index] = setInterval(() => {
+                segundos++;
+                if (segundos >= maxSegundos) {
+                    clearInterval(cronometros[index]);
+                    segundos = maxSegundos;
+                }
+                const tempo = segundosParaTempo(segundos);
+                document.getElementById(`cronometro-${index}`).textContent = tempo;
+                salvarTempo(index, tempo);
+            }, 1000);
+        }
+        
+        function pausarCronometro(index) {
+            if (cronometros[index]) {
+                clearInterval(cronometros[index]);
+                delete cronometros[index];
+            }
+        }
+        
+        function resetarCronometro(index) {
+            pausarCronometro(index);
+            document.getElementById(`cronometro-${index}`).textContent = '00:00';
+            salvarTempo(index, '00:00');
+        }
+        
+        function tempoParaSegundos(tempo) {
+            const [min, seg] = tempo.split(':').map(Number);
+            return min * 60 + seg;
+        }
+        
+        function segundosParaTempo(segundos) {
+            const min = Math.floor(segundos / 60);
+            const seg = segundos % 60;
+            return `${min.toString().padStart(2, '0')}:${seg.toString().padStart(2, '0')}`;
+        }
+        
+        function salvarTempo(index, tempo) {
+            const jogos = JSON.parse(localStorage.getItem('jogosSorteados')) || [];
+            jogos[index].tempo = tempo;
+            localStorage.setItem('jogosSorteados', JSON.stringify(jogos));
+        }
+        
+        function registrarGol(index) {
+            const jogos = JSON.parse(localStorage.getItem('jogosSorteados')) || [];
+            const jogo = jogos[index];
+            const jogadorGol = document.getElementById(`jogador-gol-${index}`).value;
+            const jogadorAssistencia = document.getElementById(`jogador-assistencia-${index}`).value;
+            const tempo = document.getElementById(`cronometro-${index}`).textContent;
+            
+            if (!jogadorGol) {
+                alert('Selecione o jogador que fez o gol.');
+                return;
+            }
+            
+            // Determinar time do gol
+            let timeGol = '';
+            if ((jogo.jogadores1 || []).includes(jogadorGol)) {
+                timeGol = jogo.time1;
+            } else if ((jogo.jogadores2 || []).includes(jogadorGol)) {
+                timeGol = jogo.time2;
+            }
+            
+            const gol = {
+                jogador: jogadorGol,
+                assistencia: jogadorAssistencia || 'Nenhuma',
+                time: timeGol,
+                tempo: tempo
+            };
+            
+            if (!jogo.gols) jogo.gols = [];
+            jogo.gols.push(gol);
+            
+            // Atualizar placar automaticamente
+            if (timeGol === jogo.time1) {
+                jogo.placar1++;
+                document.getElementById(`placar1-${index}`).value = jogo.placar1;
+            } else if (timeGol === jogo.time2) {
+                jogo.placar2++;
+                document.getElementById(`placar2-${index}`).value = jogo.placar2;
+            }
+            
+            localStorage.setItem('jogosSorteados', JSON.stringify(jogos));
+            exibirGols(index, jogo.gols);
+        }
+        
+        function exibirGols(index, gols) {
+            const divGols = document.getElementById(`gols-${index}`);
+            divGols.innerHTML = '<h5>Gols Registrados:</h5>';
+            if (gols.length === 0) {
+                divGols.innerHTML += '<p>Nenhum gol registrado.</p>';
+            } else {
+                gols.forEach(gol => {
+                    divGols.innerHTML += `<div class="gol-item">${gol.tempo} - Gol de ${gol.jogador} (${gol.time}) - Assistência: ${gol.assistencia}</div>`;
+                });
+            }
+        }
+        
+        function salvarAlteracoes() {
+            const jogos = JSON.parse(localStorage.getItem('jogosSorteados')) || [];
+            jogos.forEach((jogo, index) => {
+                jogo.placar1 = parseInt(document.getElementById(`placar1-${index}`).value) || 0;
+                jogo.placar2 = parseInt(document.getElementById(`placar2-${index}`).value) || 0;
+                jogo.status = document.getElementById(`status-${index}`).value;
+                jogo.jogadores1 = document.getElementById(`jogadores1-${index}`).value.split(',').map(j => j.trim());
+                jogo.jogadores2 = document.getElementById(`jogadores2-${index}`).value.split(',').map(j => j.trim());
+                // Gols e tempo já são salvos automaticamente
+            });
+            localStorage.setItem('jogosSorteados', JSON.stringify(jogos));
+            alert('Alterações salvas!');
+        }
+        
+        window.onload = carregarJogos;
+    </script>
 </body>
 </html>

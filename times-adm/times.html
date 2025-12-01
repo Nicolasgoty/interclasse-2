@@ -29,14 +29,14 @@
           </li>
           <li style="margin: 10px 0">
             <a
-              href="../pgjogos/jogos.html"
+              href="../jogos-adm/jogos.html"
               style="color: #fff; text-decoration: none"
               >Jogos</a
             >
           </li>
           <li style="margin: 10px 0">
-            <a href="../Times.html" style="color: #fff; text-decoration: none"
-              >Times</a
+            <a href="../login-adm/inicio.html" style="color: #fff; text-decoration: none"
+              >Inicio</a
             >
           </li>
         </ul>
@@ -47,12 +47,19 @@
       <h1>Times</h1>
         <table>
       <tbody>
-        <ul>
-       <li><a class="a"href="timea.html">Time A</a></li>
-      <li><a href="timeb">Time B</a></li>
-          </ul>
+        <ul id="teamList">
+       <!-- Times serão inseridos aqui dinamicamente, substituindo a tabela original -->
+        </ul>
       </tbody>
         </table>
+      
+      <!-- Formulário para adicionar times (adicionado logo após a lista) -->
+      <form id="teamForm">
+        <label for="teamName">Nome do Time:</label>
+        <input type="text" id="teamName" required>
+        <button type="submit">Adicionar Time</button>
+      </form>
+      
       <img
         src="../celular 1.png"
         alt="Ilustração celular"
@@ -66,42 +73,8 @@
 
     <div class="toast" id="toast">Redirecionando...</div>
 
-    <script>
-      const menuBtn = document.getElementById("menuBtn");
-      const menu = document.getElementById("menu-lateral");
-      menuBtn.addEventListener("click", () => {
-        const open = menu.classList.toggle("open");
-        menu.setAttribute("aria-hidden", String(!open));
-      });
-
-      function showToast() {
-        const t = document.getElementById("toast");
-        t.classList.add("show");
-        clearTimeout(t._hide);
-        t._hide = setTimeout(() => t.classList.remove("show"), 1200);
-      }
-
-      function addRipple(e) {
-        const el = e.currentTarget;
-        const r = document.createElement("span");
-        r.className = "ripple";
-        const rect = el.getBoundingClientRect();
-        const size = Math.max(rect.width, rect.height);
-        r.style.width = r.style.height = size + "px";
-        r.style.left = e.clientX - rect.left - size / 2 + "px";
-        r.style.top = e.clientY - rect.top - size / 2 + "px";
-        el.appendChild(r);
-        setTimeout(() => r.remove(), 600);
-      }
-
-      document.querySelectorAll("[data-target]").forEach((btn) => {
-        btn.addEventListener("click", function (e) {
-          addRipple(e);
-          showToast();
-          const t = this.getAttribute("data-target");
-          setTimeout(() => (location.href = t), 700);
-        });
-      });
+    <script src="times.js">
+      
     </script>
   </body>
 </html>

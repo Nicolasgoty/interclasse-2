@@ -1,35 +1,105 @@
+<!-- Página de Sorteio (sorteio.html) -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RESULTADOS</title>
+    <title>SORTEIO</title>
     <link rel="stylesheet" href="sorteio.css">
 </head>
 <body>
-      <header>
-      <button class="menu-icon" id="menuBtn">☰</button>
-      <h2>Interclasse CELC</h2>
-      <button
-        class="perfil-btn"
-        onclick="location.href='../perfil-adm/perfil.html'"
-      >
-        👤 Perfil
-      </button>
+    <header>
+        <button class="menu-icon" id="menuBtn">☰</button>
+        <h2>Interclasse CELC</h2>
+        <button
+            class="perfil-btn"
+            onclick="location.href='../perfil-adm/perfil.html'"
+        >
+            👤 Perfil
+        </button>
     </header>
     <main>
-
-      <img src="../celular 1.png">
+        <div class="sorteio-container">
+            <h1>Sorteio de Jogos para Interclasse</h1>
+            <p>Insira os nomes dos 10 times abaixo e clique em "Sortear Jogos" para gerar 5 jogos aleatórios.</p>
+            
+            <div id="inputs">
+                <input type="text" id="time1" placeholder="Nome do Time 1"><br>
+                <input type="text" id="time2" placeholder="Nome do Time 2"><br>
+                <input type="text" id="time3" placeholder="Nome do Time 3"><br>
+                <input type="text" id="time4" placeholder="Nome do Time 4"><br>
+                <input type="text" id="time5" placeholder="Nome do Time 5"><br>
+                <input type="text" id="time6" placeholder="Nome do Time 6"><br>
+                <input type="text" id="time7" placeholder="Nome do Time 7"><br>
+                <input type="text" id="time8" placeholder="Nome do Time 8"><br>
+                <input type="text" id="time9" placeholder="Nome do Time 9"><br>
+                <input type="text" id="time10" placeholder="Nome do Time 10"><br>
+            </div>
+            
+            <button class="sortear" onclick="sortearJogos()">Sortear Jogos</button>
+            
+            <div id="resultados"></div>
+        </div>
+        <br>
+        <img src="../celular 1.png" alt="Imagem do celular" class="aa">
     </main>
- <footer
-      style="
-        background: var(--verde);
-        color: #fff;
-        padding: 12px 18px;
-        text-align: center;
-      "
+    <footer
+        style="
+            background: var(--verde);
+            color: #fff;
+            padding: 12px 18px;
+            text-align: center;
+        "
     >
-      <p>&copy;2°DSB</p>
+        <p>&copy;2°DSB</p>
     </footer>
+
+    <script>
+        function sortearJogos() {
+            const times = [];
+            for (let i = 1; i <= 10; i++) {
+                const time = document.getElementById(`time${i}`).value.trim();
+                if (time) times.push(time);
+            }
+            
+            if (times.length < 10) {
+                alert('Por favor, insira os nomes de todos os 10 times.');
+                return;
+            }
+            
+            // Embaralhar os times
+            const timesEmbaralhados = [...times].sort(() => Math.random() - 0.5);
+            
+            // Criar 5 jogos (pares aleatórios)
+            const jogos = [];
+            for (let i = 0; i < 5; i++) {
+                const time1 = timesEmbaralhados[i * 2];
+                const time2 = timesEmbaralhados[i * 2 + 1];
+                jogos.push({
+                    id: i + 1,
+                    time1: time1,
+                    time2: time2,
+                    placar1: 0,
+                    placar2: 0,
+                    jogadores1: [],
+                    jogadores2: [],
+                    gols: [],
+                    status: 'Não iniciado',
+                    tempo: '00:00'
+                });
+            }
+            
+            // Salvar no LocalStorage
+            localStorage.setItem('jogosSorteados', JSON.stringify(jogos));
+            
+            // Exibir resultados
+            const resultadosDiv = document.getElementById('resultados');
+            resultadosDiv.innerHTML = '<h2>Jogos Sorteados:</h2>';
+            jogos.forEach(jogo => {
+                resultadosDiv.innerHTML += `<p>Jogo ${jogo.id}: ${jogo.time1} vs ${jogo.time2}</p>`;
+            });
+            resultadosDiv.innerHTML += '<p>Sorteio realizado com sucesso! Acesse as outras telas para editar ou visualizar.</p>';
+        }
+    </script>
 </body>
 </html>

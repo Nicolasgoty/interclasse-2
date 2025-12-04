@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visualizador de Jogo</title>
+    <link rel="stylesheet" href="jogos.css" />
+    <style>
+      body { font-family: Arial, sans-serif; padding: 16px; }
+      .jogo { background: #eaeaea; padding: 18px; margin: 20px 0; border-radius: 12px; border: 1px solid #aaa; }
+      .aviso { color: #b00; margin-top: 12px; }
+      .placar { font-size: 22px; margin: 12px 0; }
+      ul.gols { padding-left: 18px; }
+      ul.gols li { margin: 6px 0; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h2>Jogo — Visualizador</h2>
+</header>
+
+<main>
+    <div id="conteudo"></div>
+    <div id="mensagem" class="aviso"></div>
+</main>
+
+<footer>
+    <p>&copy; Nicolas A.</p>
+</footer>
+
+<script>
+/* Pegar id da URL */
+const params = new URLSearchParams(location.search);
+const idParam = params.get("id");
+const conteudo = document.getElementById("conteudo");
+const mensagem = document.getElementById("mensagem");
+
+if (!idParam) {
+  mensagem.textContent = "ID do jogo ausente na URL. Abra a página a partir da lista de jogos.";
+  conteudo.innerHTML = "";
+  throw new Error("ID ausente");
+}
+
+function carregarJogos() {
+  return JSON.parse(localStorage.getItem("jogos")) || [];
+}
+
+function encontrarJogoPorId(id) {
+  const jogos = carregarJogos();
+  return jogos.find(j => String(j.id) === String(id));
+}
+
+/* Pegar segundos do jogo (compatível com várias estruturas) */
+function segundosDoJogo(jogo) {
+  if (!jogo) return 0;
+  if (jogo.cronometro && typeof jogo.cronometro.segundos === "number") return jogo.cronometro.segundos;
+  if (typeof jogo.tempo === "number") return jogo.tempo;
+  // fallback: 0
+  return 0;
+}
+
+function formatarTempo(segundos) {
+  const m = Math.floor(segundos / 60);
+  const s = segundos % 60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function renderizar() {
+  const jogo = encontrarJogoPorId(idParam);
+
+  if (!jogo) {
+    mensagem.textContent = "Jogo não encontrado (pode ter sido excluído). Volte à lista de jogos.";
+    conteudo.innerHTML = "";
+    return;
+  }
+
+  mensagem.textContent = ""; // limpa aviso
+
+  const segs = segundosDoJogo(jogo);
+
+  // montar HTML (somente leitura)
+  const golsHTML = (jogo.gols && jogo.gols.length > 0)
+    ? jogo.gols.map(g => {
+        const autor = escapeHtml(g.autor || g.jogador || "—");
+        const assist = escapeHtml(g.assist || g.assistencia || g.assistencia || "");
+        const minuto = escapeHtml(g.minuto || g.minuto || "");
+        const time = escapeHtml(g.time || "");
+        return `<li>${minuto ? minuto + ' — ' : ''}<strong>${autor}</strong>${assist ? ' (Assistência: ' + assist + ')' : ''} <em>${time ? ' — ' + time : ''}</em></li>`;
+      }).join("")
+    : "<li>Nenhum gol ainda.</li>";
+
+  conteudo.innerHTML = `
+    <div class="jogo">
+      <h2>${escapeHtml(jogo.timeA || "Time A")} <span class="placar"><strong>${jogo.placarA ?? 0}</strong> x <strong>${jogo.placarB ?? 0}</strong></span> ${escapeHtml(jogo.timeB || "Time B")}</h2>
+      <div><strong>Tempo:</strong> ${formatarTempo(segs)}</div>
+      <h3>Gols:</h3>
+      <ul class="gols">${golsHTML}</ul>
+    </div>
+  `;
+}
+
+/* pequena função de escape para segurança */
+function escapeHtml(s){
+  if (s === null || s === undefined) return "";
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* atualiza a cada 500ms */
+const intervalo = setInterval(renderizar, 500);
+renderizar();
+
+/* caso queira parar o polling quando a aba perder foco (opcional), comente se não quiser */
+// document.addEventListener('visibilitychange', () => {
+//   if (document.hidden) clearInterval(intervalo);
+//   else renderizar(); // re-renderiza quando voltar
+// });
+</script>
+
+</body>
+</html>

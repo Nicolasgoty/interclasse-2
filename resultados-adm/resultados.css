@@ -103,42 +103,21 @@
       .btn-primary:hover {
         background: #80ff00;
       }
-#menu-lateral {
+      #menu-lateral {
         position: fixed;
         left: 0;
         top: 0;
         height: 100%;
-        width: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: flex-start;
-        transform: translateX(-100%);
-        transition: transform 0.25s;
-        padding: 0;
-        z-index: 2000;
-        pointer-events: none;
+        width: 260px;
+        background: var(--verde);
+        color: #fff;
+        transform: translateX(-110%);
+        transition: transform 0.28s;
+        padding: 24px;
+        z-index: 1200;
       }
       #menu-lateral.open {
         transform: translateX(0);
-        pointer-events: auto;
-      }
-      .menu-conteudo {
-        width: 260px;
-        background: var(--verde-esc);
-        padding: 30px;
-        color: #fff;
-      }
-      .menu-conteudo ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-      }
-      .menu-conteudo li {
-        margin: 14px 0;
-      }
-      .menu-conteudo a {
-        color: #fff;
-        text-decoration: none;
       }
       .toast {
         position: fixed;

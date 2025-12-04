@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Adicionar / Editar Time</title>
+    <link rel="stylesheet" href="times.css" />
+  </head>
+
+  <body>
+    <header>
+      <button class="menu-icon" id="menuBtn">☰</button>
+      <h2>Interclasse CELC</h2>
+      <button class="perfil-btn" onclick="location.href='../perfil-al/perfil.html'">
+        👤 Perfil
+      </button>
+    </header>
+
+    <aside id="menu-lateral" aria-hidden="true">
+      <h3>Menu</h3>
+      <nav>
+        <ul style="list-style: none; padding: 0; margin-top: 18px">
+          <li><a href="../index.html">Início</a></li>
+          <li><a href="../pgjogos/jogos.html">Jogos</a></li>
+          <li><a href="../Times.html">Times</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main>
+      <h1 id="tituloPagina">Adicionar Time</h1>
+
+      <form id="formTime">
+        <label>Nome do Time:</label>
+        <input type="text" id="nomeTime" required />
+
+        <h2>Jogadores</h2>
+
+        <div id="listaJogadores"></div>
+
+        <button type="button" id="btnAddJogador">+ Adicionar Jogador</button>
+
+        <br><br>
+
+        <button type="submit" id="btnSalvar">
+          Finalizar
+        </button>
+      </form>
+    </main>
+
+    <footer>
+      <p>&copy; Nicolas A.</p>
+    </footer>
+
+    <script>
+      const lista = document.getElementById("listaJogadores");
+      const btnAdd = document.getElementById("btnAddJogador");
+
+      let editIndex = localStorage.getItem("editarTime");
+      let times = JSON.parse(localStorage.getItem("times")) || [];
+
+      // 🔧 CORREÇÃO: converter editIndex para número
+      if (editIndex !== null) {
+        editIndex = parseInt(editIndex);
+      }
+
+      // ------------------------------
+      // Função para criar bloco jogador
+      // ------------------------------
+      function criarJogador(nome = "", idade = "") {
+        const div = document.createElement("div");
+        div.classList.add("jogador-item");
+
+        div.innerHTML = `
+          <input type="text" class="nomeJogador" placeholder="Nome" value="${nome}" required>
+          <input type="number" class="idadeJogador" placeholder="Idade" value="${idade}" required>
+          <button type="button" class="remover">X</button>
+        `;
+
+        div.querySelector(".remover").onclick = () => div.remove();
+
+        lista.appendChild(div);
+      }
+
+      // ------------------------------
+      // Se for edição, carregar dados
+      // ------------------------------
+      if (editIndex !== null && times[editIndex]) {
+        document.getElementById("tituloPagina").innerText = "Editar Time";
+
+        const time = times[editIndex];
+        document.getElementById("nomeTime").value = time.nome;
+
+        time.jogadores.forEach(j => criarJogador(j.nome, j.idade));
+      }
+
+      // ------------------------------
+      // Adicionar jogador (novo)
+      // ------------------------------
+      btnAdd.addEventListener("click", () => criarJogador());
+
+      // ------------------------------
+      // Salvar time
+      // ------------------------------
+      document.getElementById("formTime").addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const nomeTime = document.getElementById("nomeTime").value;
+        const nomes = document.querySelectorAll(".nomeJogador");
+        const idades = document.querySelectorAll(".idadeJogador");
+
+        const jogadores = [];
+
+        nomes.forEach((n, i) => {
+          jogadores.push({
+            nome: n.value,
+            idade: idades[i].value
+          });
+        });
+
+        const time = { nome: nomeTime, jogadores };
+
+        // Se estiver editando → substituir
+        if (editIndex !== null && times[editIndex]) {
+          times[editIndex] = time;
+          localStorage.removeItem("editarTime");
+        } else {
+          times.push(time);
+        }
+
+        localStorage.setItem("times", JSON.stringify(times));
+
+        alert("Time salvo com sucesso!");
+        window.location.href = "times.html";
+      });
+    </script>
+  </body>
+</html>

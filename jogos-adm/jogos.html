@@ -1,247 +1,104 @@
-<!-- Página de Edição de Jogos (editar-jogos.html) -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EDITAR JOGOS</title>
-    <link rel="stylesheet" href="jogos.css"> <!-- Reutilizar CSS se possível -->
-    <style>
-        .jogo-container {
-            margin: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-        }
-        input, select {
-            margin: 5px;
-        }
-        .cronometro {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        .gols-registrados {
-            margin-top: 10px;
-        }
-        .gol-item {
-            background: #f9f9f9;
-            padding: 5px;
-            margin: 5px 0;
-            border-radius: 4px;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gerenciar Jogos</title>
+  <link rel="stylesheet" href="jogos.css">
+  <style>
+    body { font-family: Arial, sans-serif; padding: 18px; }
+    .box { border:1px solid #ccc; padding:12px; margin:12px 0; border-radius:8px; background:#fafafa;}
+    .acoes button { margin-right:8px; }
+  </style>
 </head>
 <body>
-    <header>
-        <button class="menu-icon" id="menuBtn">☰</button>
-        <h2>Interclasse CELC</h2>
-        <button
-            class="perfil-btn"
-            onclick="location.href='../perfil-adm/perfil.html'"
-        >
-            👤 Perfil
-        </button>
-    </header>
-    <main>
-        <h1>Editar Estatísticas dos Jogos</h1>
-        <div id="jogosContainer"></div>
-        <button onclick="salvarAlteracoes()">Salvar Alterações</button>
-        <br><br>
-        <button onclick="location.href='sorteio.html'">Voltar ao Sorteio</button>
-        <button onclick="location.href='resultados-tempo-real.html'">Ver Resultados em Tempo Real</button>
-    </main>
-    <footer
-        style="
-            background: var(--verde);
-            color: #fff;
-            padding: 12px 18px;
-            text-align: center;
-        "
-    >
-        <p>&copy;2°DSB</p>
-    </footer>
+  <header><h2>Interclasse CELC — Admin</h2></header>
+  <main>
+    <h1>Jogos Ativos</h1>
+    <button id="btnCriar" style="padding:8px 12px">➕ Criar Novo Jogo</button>
+    <div id="listaJogos" style="margin-top:20px"></div>
+  </main>
 
-    <script>
-        let cronometros = {}; // Para armazenar os timers de cada jogo
+  <script>
+    // helpers
+    function carregarJogos(){ return JSON.parse(localStorage.getItem("jogos")) || []; }
+    function salvarJogos(jogos){ localStorage.setItem("jogos", JSON.stringify(jogos)); }
 
-        function carregarJogos() {
-            const jogos = JSON.parse(localStorage.getItem('jogosSorteados')) || [];
-            const container = document.getElementById('jogosContainer');
-            container.innerHTML = '';
-            
-            jogos.forEach((jogo, index) => {
-                const div = document.createElement('div');
-                div.className = 'jogo-container';
-                div.innerHTML = `
-                    <h3>Jogo ${jogo.id}: ${jogo.time1} vs ${jogo.time2}</h3>
-                    <label>Placar ${jogo.time1}: <input type="number" id="placar1-${index}" value="${jogo.placar1}"></label>
-                    <label>Placar ${jogo.time2}: <input type="number" id="placar2-${index}" value="${jogo.placar2}"></label>
-                    <label>Status: 
-                        <select id="status-${index}">
-                            <option value="Não iniciado" ${jogo.status === 'Não iniciado' ? 'selected' : ''}>Não iniciado</option>
-                            <option value="Em andamento" ${jogo.status === 'Em andamento' ? 'selected' : ''}>Em andamento</option>
-                            <option value="Finalizado" ${jogo.status === 'Finalizado' ? 'selected' : ''}>Finalizado</option>
-                        </select>
-                    </label>
-                    <br>
-                    <label>Jogadores ${jogo.time1} (separados por vírgula): <input type="text" id="jogadores1-${index}" value="${(jogo.jogadores1 || []).join(', ')}"></label>
-                    <br>
-                    <label>Jogadores ${jogo.time2} (separados por vírgula): <input type="text" id="jogadores2-${index}" value="${(jogo.jogadores2 || []).join(', ')}"></label>
-                    <br>
-                    <div class="cronometro" id="cronometro-${index}">${jogo.tempo || '00:00'}</div>
-                    <button onclick="iniciarCronometro(${index})">Iniciar</button>
-                    <button onclick="pausarCronometro(${index})">Pausar</button>
-                    <button onclick="resetarCronometro(${index})">Resetar</button>
-                    <br><br>
-                    <h4>Registrar Gol</h4>
-                    <select id="jogador-gol-${index}"><option value="">Selecione Jogador que fez o gol</option>
-                      <option value="">Selecione Jogador que fez o gol</option></select>
-                 
-                    <select id="jogador-assistencia-${index}"><option value="">Selecione Jogador que deu assistência</option></select>
-                    <button onclick="registrarGol(${index})">Registrar Gol</button>
-                    <div class="gols-registrados" id="gols-${index}"></div>
-                `;
-                container.appendChild(div);
-                
-                // Preencher dropdowns de jogadores
-                atualizarDropdownsJogadores(index, jogo);
-                
-                // Exibir gols registrados
-                exibirGols(index, jogo.gols || []);
-            });
-        }
-        
-        function atualizarDropdownsJogadores(index, jogo) {
-            const jogadores = (jogo.jogadores1 || []).concat(jogo.jogadores2 || []);
-            const selectGol = document.getElementById(`jogador-gol-${index}`);
-            const selectAssistencia = document.getElementById(`jogador-assistencia-${index}`);
-            
-            selectGol.innerHTML = '<option value="">Selecione Jogador que fez o gol</option>';
-            selectAssistencia.innerHTML = '<option value="">Selecione Jogador que deu assistência</option>';
-            
-            jogadores.forEach(jogador => {
-                selectGol.innerHTML += `<option value="${jogador}">${jogador}</option>`;
-                selectAssistencia.innerHTML += `<option value="${jogador}">${jogador}</option>`;
-            });
-        }
-        
-        function iniciarCronometro(index) {
-            if (cronometros[index]) clearInterval(cronometros[index]);
-            let segundos = tempoParaSegundos(document.getElementById(`cronometro-${index}`).textContent);
-            const maxSegundos = 20 * 60; // 20 minutos
-            cronometros[index] = setInterval(() => {
-                segundos++;
-                if (segundos >= maxSegundos) {
-                    clearInterval(cronometros[index]);
-                    segundos = maxSegundos;
-                }
-                const tempo = segundosParaTempo(segundos);
-                document.getElementById(`cronometro-${index}`).textContent = tempo;
-                salvarTempo(index, tempo);
-            }, 1000);
-        }
-        
-        function pausarCronometro(index) {
-            if (cronometros[index]) {
-                clearInterval(cronometros[index]);
-                delete cronometros[index];
-            }
-        }
-        
-        function resetarCronometro(index) {
-            pausarCronometro(index);
-            document.getElementById(`cronometro-${index}`).textContent = '00:00';
-            salvarTempo(index, '00:00');
-        }
-        
-        function tempoParaSegundos(tempo) {
-            const [min, seg] = tempo.split(':').map(Number);
-            return min * 60 + seg;
-        }
-        
-        function segundosParaTempo(segundos) {
-            const min = Math.floor(segundos / 60);
-            const seg = segundos % 60;
-            return `${min.toString().padStart(2, '0')}:${seg.toString().padStart(2, '0')}`;
-        }
-        
-        function salvarTempo(index, tempo) {
-            const jogos = JSON.parse(localStorage.getItem('jogosSorteados')) || [];
-            jogos[index].tempo = tempo;
-            localStorage.setItem('jogosSorteados', JSON.stringify(jogos));
-        }
-        
-        function registrarGol(index) {
-            const jogos = JSON.parse(localStorage.getItem('jogosSorteados')) || [];
-            const jogo = jogos[index];
-            const jogadorGol = document.getElementById(`jogador-gol-${index}`).value;
-            const jogadorAssistencia = document.getElementById(`jogador-assistencia-${index}`).value;
-            const tempo = document.getElementById(`cronometro-${index}`).textContent;
-            
-            if (!jogadorGol) {
-                alert('Selecione o jogador que fez o gol.');
-                return;
-            }
-            
-            // Determinar time do gol
-            let timeGol = '';
-            if ((jogo.jogadores1 || []).includes(jogadorGol)) {
-                timeGol = jogo.time1;
-            } else if ((jogo.jogadores2 || []).includes(jogadorGol)) {
-                timeGol = jogo.time2;
-            }
-            
-            const gol = {
-                jogador: jogadorGol,
-                assistencia: jogadorAssistencia || 'Nenhuma',
-                time: timeGol,
-                tempo: tempo
-            };
-            
-            if (!jogo.gols) jogo.gols = [];
-            jogo.gols.push(gol);
-            
-            // Atualizar placar automaticamente
-            if (timeGol === jogo.time1) {
-                jogo.placar1++;
-                document.getElementById(`placar1-${index}`).value = jogo.placar1;
-            } else if (timeGol === jogo.time2) {
-                jogo.placar2++;
-                document.getElementById(`placar2-${index}`).value = jogo.placar2;
-            }
-            
-            localStorage.setItem('jogosSorteados', JSON.stringify(jogos));
-            exibirGols(index, jogo.gols);
-        }
-        
-        function exibirGols(index, gols) {
-            const divGols = document.getElementById(`gols-${index}`);
-            divGols.innerHTML = '<h5>Gols Registrados:</h5>';
-            if (gols.length === 0) {
-                divGols.innerHTML += '<p>Nenhum gol registrado.</p>';
-            } else {
-                gols.forEach(gol => {
-                    divGols.innerHTML += `<div class="gol-item">${gol.tempo} - Gol de ${gol.jogador} (${gol.time}) - Assistência: ${gol.assistencia}</div>`;
-                });
-            }
-        }
-        
-        function salvarAlteracoes() {
-            const jogos = JSON.parse(localStorage.getItem('jogosSorteados')) || [];
-            jogos.forEach((jogo, index) => {
-                jogo.placar1 = parseInt(document.getElementById(`placar1-${index}`).value) || 0;
-                jogo.placar2 = parseInt(document.getElementById(`placar2-${index}`).value) || 0;
-                jogo.status = document.getElementById(`status-${index}`).value;
-                jogo.jogadores1 = document.getElementById(`jogadores1-${index}`).value.split(',').map(j => j.trim());
-                jogo.jogadores2 = document.getElementById(`jogadores2-${index}`).value.split(',').map(j => j.trim());
-                // Gols e tempo já são salvos automaticamente
-            });
-            localStorage.setItem('jogosSorteados', JSON.stringify(jogos));
-            alert('Alterações salvas!');
-        }
-        
-        window.onload = carregarJogos;
-    </script>
+    // criar novo e abrir editor
+    document.getElementById("btnCriar").addEventListener("click", () => {
+      const jogos = carregarJogos();
+      const novo = {
+        id: Date.now(),
+        timeA: "Time A",
+        timeB: "Time B",
+        placarA: 0,
+        placarB: 0,
+        gols: [],
+        status: "parado",       // "parado" | "rodando" | "finalizado" | "pausado"
+        cronometro: { segundos: 0 }
+      };
+      jogos.push(novo);
+      salvarJogos(jogos);
+      // abrir editor do novo jogo
+      window.location.href = "controle-jogo.html?id=" + novo.id;
+    });
+
+    // renderizar lista
+    function renderizarLista(){
+      const container = document.getElementById("listaJogos");
+      const jogos = carregarJogos();
+      container.innerHTML = "";
+
+      if (jogos.length === 0){
+        container.innerHTML = "<p>Nenhum jogo criado ainda.</p>";
+        return;
+      }
+
+      jogos.forEach(j => {
+        const div = document.createElement("div");
+        div.className = "box";
+        div.innerHTML = `
+          <h3>${escapeHtml(j.timeA)} vs ${escapeHtml(j.timeB)}</h3>
+          <p>Placar: <strong>${j.placarA} x ${j.placarB}</strong></p>
+          <p>Status: ${j.status} — Tempo: ${formatTempo(j.cronometro.segundos)}</p>
+          <div class="acoes">
+            <button data-id="${j.id}" class="gerenciar">⚙ Gerenciar</button>
+            <button data-id="${j.id}" class="visualizar">👁 Visualizar</button>
+            <button data-id="${j.id}" class="excluir" style="background:#d9534f;color:#fff;border:none;padding:6px 10px;border-radius:6px;">🗑 Excluir</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // event delegation: gerenciar / visualizar / excluir
+    document.getElementById("listaJogos").addEventListener("click", (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      const id = btn.dataset.id;
+      if (btn.classList.contains("gerenciar")){
+        window.location.href = "controle-jogo.html?id=" + id;
+      } else if (btn.classList.contains("visualizar")){
+        window.location.href = "visualizar-jogo.html?id=" + id;
+      } else if (btn.classList.contains("excluir")){
+        if (!confirm("Excluir este jogo?")) return;
+        let jogos = carregarJogos();
+        jogos = jogos.filter(j => String(j.id) !== String(id));
+        salvarJogos(jogos);
+        renderizarLista();
+      }
+    });
+
+    // small helpers
+    function formatTempo(segundos){
+      const m = Math.floor(segundos/60); const s = segundos % 60;
+      return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+    }
+    // basic HTML escape
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    // iniciar
+    renderizarLista();
+  </script>
 </body>
 </html>

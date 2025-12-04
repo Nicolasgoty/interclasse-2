@@ -16,7 +16,7 @@
         flex-direction: column;
       }
       header {
-         background: var(--verde);
+        background: var(--verde);
         padding: 14px 18px;
         display: flex;
         align-items: center;
@@ -91,15 +91,3 @@
         transform: translateX(-50%) translateY(-6px);
         pointer-events: auto;
       }
-        .sorteio-container { text-align: center; }
-        input { margin: 5px; padding: 5px; width: 200px; text-align: center; }
-        button.sortear { padding: 10px 20px; margin-top: 20px; background: var(--verde); color: white; border: none; cursor: pointer; }
-        #resultados { margin-top: 20px; text-align: left; display: inline-block; }
-        #resultados h2 { text-align: center; }
-          .aa {
-          max-width: 100%;
-          height: auto;
-          display: block;
-         margin-left: -455px;
-          margin-top: 1050px;
-        }

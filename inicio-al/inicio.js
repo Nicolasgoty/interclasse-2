@@ -32,4 +32,4 @@ const menuBtn = document.getElementById("menuBtn");
           const t = this.getAttribute("data-target");
           setTimeout(() => (location.href = t), 700);
         });
-      });
+      })

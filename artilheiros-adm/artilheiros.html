@@ -1,139 +1,45 @@
-<!-- Página de Adição de Jogadores (artilheiros.html) -->
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARTILHEIROS - Adicionar Jogadores</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        header {
-            background: #4CAF50; /* Verde */
-            color: white;
-            padding: 10px;
-            text-align: center;
-            position: relative;
-        }
-        .menu-icon {
-            position: absolute;
-            left: 10px;
-            top: 10px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: white;
-            cursor: pointer;
-        }
-        .perfil-btn {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: white;
-            cursor: pointer;
-        }
-        main {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        .form-container {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        input {
-            padding: 8px;
-            margin: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            padding: 8px 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .nav-btn {
-            margin-top: 20px;
-        }
-        footer {
-            background: #4CAF50;
-            color: #fff;
-            padding: 12px 18px;
-            text-align: center;
-        }
-    </style>
+    <title>ARTILHEIROS</title>
+    <link rel="stylesheet" href="artilheiros.css">
 </head>
 <body>
-    <header>
-        <button class="menu-icon" id="menuBtn">☰</button>
-        <h2>Interclasse CELC</h2>
-        <button class="perfil-btn" onclick="location.href='../perfil-adm/perfil.html'">👤 Perfil</button>
+    <header> <button class="menu-icon" id="menuBtn">☰</button>
+      <h2>Interclasse CELC</h2>
+      <button
+        class="perfil-btn"
+        onclick="location.href='../perfil-adm/perfil.html'"
+      >
+        👤 Perfil
+      </button>
     </header>
 
-    <main>
-        <div class="form-container">
-            <h3>Adicionar Jogador</h3>
-            <input type="text" id="nome" placeholder="Nome do Jogador">
-            <input type="number" id="gols" placeholder="Gols">
-            <input type="number" id="assistencias" placeholder="Assistências">
-            <button onclick="adicionarJogador()">Adicionar</button>
-        </div>
-        
-        <button class="nav-btn" onclick="location.href='resultados.html'">Ver Resultados</button>
-    </main>
+    <MAIN>
+        <table><thead>
+         <tr><th>Jogadores</th><th>Gols feitos</th><th></th></tr>
+      </thead>
+      <tbody>
+        <tr><td>José</td><td>10</td></tr><br>
+         <tr><td>José</td><td>10</td></tr><br>
+         <tr><td>José</td><td>10</td></tr><br>
+         <tr><td>José</td><td>10</td></tr><br>
+         <tr><td>José</td><td>10</td></tr><br>
+      </tbody>
+    </table>
+    </MAIN>
 
-    <footer>
-        <p>&copy;2°DSB</p>
+  <footer
+      style="
+        background: var(--verde);
+        color: #fff;
+        padding: 12px 18px;
+        text-align: center;
+      "
+    >
+      <p>&copy;2°DSB</p>
     </footer>
-
-    <script>
-        // Função para salvar dados no LocalStorage
-        function salvarDados(dados) {
-            localStorage.setItem('jogadores', JSON.stringify(dados));
-        }
-
-        // Função para adicionar jogador
-        function adicionarJogador() {
-            const nome = document.getElementById('nome').value;
-            const gols = parseInt(document.getElementById('gols').value) || 0;
-            const assistencias = parseInt(document.getElementById('assistencias').value) || 0;
-            const somatoria = gols + assistencias;
-
-            if (nome.trim() === '') {
-                alert('Por favor, insira o nome do jogador.');
-                return;
-            }
-
-            // Carregar dados existentes
-            const dados = JSON.parse(localStorage.getItem('jogadores')) || [];
-            
-            // Adicionar novo jogador
-            dados.push({ nome, gols, assistencias, somatoria });
-            
-            // Salvar no LocalStorage
-            salvarDados(dados);
-            
-            alert('Jogador adicionado com sucesso!');
-
-            // Limpar campos
-            document.getElementById('nome').value = '';
-            document.getElementById('gols').value = '';
-            document.getElementById('assistencias').value = '';
-        }
-    </script>
 </body>
 </html>

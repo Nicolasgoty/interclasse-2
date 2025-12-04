@@ -3,71 +3,68 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TIMES</title>
+    <title>Time Cadastrado</title>
     <link rel="stylesheet" href="times.css">
   </head>
+
   <body>
     <header>
       <button class="menu-icon" id="menuBtn">☰</button>
       <h2>Interclasse CELC</h2>
-      <button
-        class="perfil-btn"
-        onclick="location.href='../perfil-al/perfil.html'"
-      >
-        👤 Perfil
-      </button>
+      <button class="perfil-btn" onclick="location.href='../perfil-al/perfil.html'">👤 Perfil</button>
     </header>
 
     <aside id="menu-lateral" aria-hidden="true">
       <h3>Menu</h3>
       <nav>
         <ul style="list-style: none; padding: 0; margin-top: 18px">
-          <li style="margin: 10px 0">
-            <a href="../index.html" style="color: #fff; text-decoration: none"
-              >Início</a
-            >
-          </li>
-          <li style="margin: 10px 0">
-            <a
-              href="../pgjogos/jogos.html"
-              style="color: #fff; text-decoration: none"
-              >Jogos</a
-            >
-          </li>
-          <li style="margin: 10px 0">
-            <a href="../Times.html" style="color: #fff; text-decoration: none"
-              >Times</a
-            >
-          </li>
+          <li style="margin: 10px 0"><a href="../index.html">Início</a></li>
+          <li style="margin: 10px 0"><a href="../pgjogos/jogos.html">Jogos</a></li>
+          <li style="margin: 10px 0"><a href="../Times.html">Times</a></li>
         </ul>
       </nav>
     </aside>
 
     <main>
-      <h1>Times</h1>
-        <table>
-      <tbody>
-        <ul>
-       <li><a class="a" href="timea.html">Time A</a></li>
-      <li><a href="timeb">Time B</a></li>
-          </ul>
-      </tbody>
-        </table>
-      <img
-        src="../celular 1.png"
-        alt="Ilustração celular"
-        style="margin-top: 22px"
-      />
+      <h1>Time Cadastrado</h1>
+
+      <div id="conteudoTime"></div>
+
+      <button onclick="location.href='adicionar-time.html'" style="margin-top: 20px;">
+        Modificar Time
+      </button>
     </main>
 
-   <footer>
-      <p>&copy;Nicolas A.</p>
+    <footer>
+      <p>&copy; Nicolas A.</p>
     </footer>
 
-    <div class="toast" id="toast">Redirecionando...</div>
+    <script>
+      const area = document.getElementById("conteudoTime");
 
-    <script src="times.js">
-     
+      // Pega todos os times salvos
+      const times = JSON.parse(localStorage.getItem("times")) || [];
+
+      // Pega o ÚLTIMO time cadastrado
+      const time = times[times.length - 1];
+
+      if (!time) {
+        area.innerHTML = "<p>Nenhum time cadastrado ainda.</p>";
+      } else {
+        let html = `
+          <h2>${time.nome}</h2>
+          <h3>Jogadores:</h3>
+          <ul>
+        `;
+
+        time.jogadores.forEach(jog => {
+          html += `<li>${jog.nome} — ${jog.idade} anos</li>`;
+        });
+
+        html += "</ul>";
+
+        area.innerHTML = html;
+      }
     </script>
   </body>
 </html>

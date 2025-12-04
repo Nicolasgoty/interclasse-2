@@ -1,99 +1,54 @@
-<!-- Página de Resultados em Tempo Real (resultados-tempo-real.html) -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RESULTADOS EM TEMPO REAL</title>
-    <link rel="stylesheet" href="jogos.css"> <!-- Reutilizar CSS se possível -->
-    <style>
-        .jogo-container {
-            margin: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-        }
-        .cronometro {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        .gols-registrados {
-            margin-top: 10px;
-        }
-        .gol-item {
-            background: #f9f9f9;
-            padding: 5px;
-            margin: 5px 0;
-            border-radius: 4px;
-        }
-    </style>
+    <title>Jogos</title>
+    <link rel="stylesheet" href="jogos.css">
 </head>
-<body>
-    <header>
-        <button class="menu-icon" id="menuBtn">☰</button>
-        <h2>Interclasse CELC</h2>
-        <button
-            class="perfil-btn"
-            onclick="location.href='../perfil-adm/perfil.html'"
-        >
-            👤 Perfil
-        </button>
-    </header>
-    <main>
-        <h1>Resultados em Tempo Real</h1>
-        <div id="jogosContainer"></div>
-        <button onclick="atualizarResultados()">Atualizar</button>
-        <br><br>
-        <button onclick="location.href='sorteio.html'">Voltar ao Sorteio</button>
-    </main>
-    <footer
-        style="
-            background: var(--verde);
-            color: #fff;
-            padding: 12px 18px;
-            text-align: center;
-        "
-    >
-        <p>&copy;2°DSB</p>
-    </footer>
 
-    <script>
-        function carregarResultados() {
-            const jogos = JSON.parse(localStorage.getItem('jogosSorteados')) || [];
-            const container = document.getElementById('jogosContainer');
-            container.innerHTML = '';
-            
-            if (jogos.length === 0) {
-                container.innerHTML = '<p>Nenhum jogo sorteado ainda.</p>';
-                return;
-            }
-            
-            jogos.forEach(jogo => {
-                const div = document.createElement('div');
-                div.className = 'jogo-container';
-                div.innerHTML = `
-                    <h3>Jogo ${jogo.id}: ${jogo.time1} vs ${jogo.time2}</h3>
-                    <p>Placar: ${jogo.placar1} - ${jogo.placar2}</p>
-                    <p>Status: ${jogo.status}</p>
-                    <div class="cronometro">Tempo: ${jogo.tempo || '00:00'}</div>
-                    <div class="gols-registrados">
-                        <h5>Gols Registrados:</h5>
-                        ${jogo.gols && jogo.gols.length > 0 ? jogo.gols.map(gol => `<div class="gol-item">${gol.tempo} - Gol de ${gol.jogador} (${gol.time}) - Assistência: ${gol.assistencia}</div>`).join('') : '<p>Nenhum gol registrado.</p>'}
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-        
-        function atualizarResultados() {
-            carregarResultados();
-        }
-        
-        window.onload = carregarResultados;
-        
-        // Atualizar automaticamente a cada 30 segundos
-        setInterval(carregarResultados, 30000);
-    </script>
+<body>
+<header>
+    <h2>Interclasse CELC</h2>
+</header>
+
+<main>
+    <h1>Jogos</h1>
+    <div id="listaJogos"></div>
+</main>
+
+<script>
+function carregarJogos() {
+    return JSON.parse(localStorage.getItem("jogos")) || [];
+}
+
+function render() {
+    const jogos = carregarJogos();
+    const div = document.getElementById("listaJogos");
+
+    if (jogos.length === 0) {
+        div.innerHTML = "<p>Nenhum jogo disponível.</p>";
+        return;
+    }
+
+    div.innerHTML = "";
+
+    jogos.forEach(jogo => {
+        const box = document.createElement("div");
+        box.style = "border:1px solid #ccc;padding:10px;margin:10px 0;";
+
+        box.innerHTML = `
+            <h3>${jogo.timeA} vs ${jogo.timeB}</h3>
+            <p>Placar: <strong>${jogo.placarA} x ${jogo.placarB}</strong></p>
+            <button onclick="location.href='visualizar-jogo.html?id=${jogo.id}'">👁 Acompanhar</button>
+        `;
+
+        div.appendChild(box);
+    });
+}
+
+render();
+</script>
+
 </body>
 </html>

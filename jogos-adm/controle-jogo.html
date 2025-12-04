@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Controle do Jogo</title>
+  <link rel="stylesheet" href="jogos.css">
+  <style>
+    body{font-family:Arial;padding:18px}
+    .top{display:flex;gap:12px;align-items:center}
+    .cron{font-size:28px;margin-top:8px}
+    .gols-list li{margin:6px 0}
+    .actions button{margin-right:6px}
+    label{display:block;margin-top:8px}
+  </style>
+</head>
+<body>
+  <header><h2>Controle do Jogo — Admin</h2></header>
+
+  <main>
+    <div id="msg"></div>
+
+    <section>
+      <div class="top">
+        <div style="flex:1">
+          <label>Time A
+            <input id="timeA" type="text">
+          </label>
+        </div>
+        <div style="flex:0">
+          <label>Placar A
+            <input id="placarA" type="number" style="width:80px">
+          </label>
+        </div>
+        <div style="flex:0;align-self:center">X</div>
+        <div style="flex:0">
+          <label>Placar B
+            <input id="placarB" type="number" style="width:80px">
+          </label>
+        </div>
+        <div style="flex:1">
+          <label>Time B
+            <input id="timeB" type="text">
+          </label>
+        </div>
+      </div>
+
+      <div class="cron">
+        ⏱ <span id="tempo">00:00</span>
+      </div>
+
+      <div class="actions" style="margin-top:8px">
+        <button id="btnIniciar">▶ Iniciar</button>
+        <button id="btnPausar">⏸ Pausar</button>
+        <button id="btnFinalizar">⏹ Finalizar</button>
+        <button id="btnVoltar">⬅ Voltar à lista</button>
+      </div>
+    </section>
+
+    <hr>
+
+    <section>
+      <h3>Registrar Gol</h3>
+      <label>
+        Time:
+        <select id="golTime">
+          <option value="A">Time A</option>
+          <option value="B">Time B</option>
+        </select>
+      </label>
+      <label>Autor:
+        <input id="golAutor" type="text" placeholder="Nome do autor">
+      </label>
+      <label>Assistência:
+        <input id="golAssist" type="text" placeholder="Nome da assistência (opcional)">
+      </label>
+      <button id="btnRegistrarGol">Adicionar Gol</button>
+    </section>
+
+    <hr>
+
+    <section>
+      <h3>Gols Registrados</h3>
+      <ul id="listaGols" class="gols-list"></ul>
+    </section>
+  </main>
+
+<script>
+  // pegar id da URL
+  const params = new URLSearchParams(location.search);
+  const idParam = params.get("id");
+  if (!idParam) {
+    document.getElementById("msg").innerHTML = "<p style='color:red'>ID do jogo ausente na URL. Volte à lista.</p>";
+    throw new Error("ID ausente");
+  }
+  const jogoId = Number(idParam);
+
+  // carregar jogos
+  function carregarJogos(){ return JSON.parse(localStorage.getItem("jogos")) || []; }
+  function salvarJogos(jogos){ localStorage.setItem("jogos", JSON.stringify(jogos)); }
+
+  let jogos = carregarJogos();
+  let jogoIndex = jogos.findIndex(j => Number(j.id) === Number(jogoId));
+  if (jogoIndex === -1){
+    document.getElementById("msg").innerHTML = "<p style='color:red'>Jogo não encontrado. Talvez tenha sido excluído.</p>";
+    throw new Error("Jogo não encontrado");
+  }
+
+  // referência ao jogo
+  function getJogo(){ jogos = carregarJogos(); jogoIndex = jogos.findIndex(j=>Number(j.id)===Number(jogoId)); return jogos[jogoIndex]; }
+  function salvarAtual(){
+    salvarJogos(jogos);
+    // também atualiza localStorage imediatamente para os visualizadores
+    localStorage.setItem("jogos", JSON.stringify(jogos));
+  }
+
+  // elementos
+  const inpTimeA = document.getElementById("timeA");
+  const inpTimeB = document.getElementById("timeB");
+  const inpPlacarA = document.getElementById("placarA");
+  const inpPlacarB = document.getElementById("placarB");
+  const spanTempo = document.getElementById("tempo");
+  const btnIniciar = document.getElementById("btnIniciar");
+  const btnPausar = document.getElementById("btnPausar");
+  const btnFinalizar = document.getElementById("btnFinalizar");
+  const btnVoltar = document.getElementById("btnVoltar");
+  const btnRegistrarGol = document.getElementById("btnRegistrarGol");
+  const selectGolTime = document.getElementById("golTime");
+  const inpGolAutor = document.getElementById("golAutor");
+  const inpGolAssist = document.getElementById("golAssist");
+  const ulGols = document.getElementById("listaGols");
+
+  // intervalo local
+  let intervaloId = null;
+
+  // carregar dados na UI
+  function atualizarUI(){
+    const jogo = getJogo();
+    if (!jogo) return;
+    inpTimeA.value = jogo.timeA;
+    inpTimeB.value = jogo.timeB;
+    inpPlacarA.value = jogo.placarA;
+    inpPlacarB.value = jogo.placarB;
+    spanTempo.textContent = formatTempo(jogo.cronometro.segundos);
+    renderGols(jogo.gols);
+  }
+
+  function renderGols(gols){
+    ulGols.innerHTML = "";
+    if (!gols || gols.length === 0){
+      ulGols.innerHTML = "<li>Nenhum gol registrado.</li>";
+      return;
+    }
+    gols.forEach((g, i) => {
+      const li = document.createElement("li");
+      li.textContent = `${g.minuto} — ${g.time}: ${g.autor} ${g.assist ? "(Assist: " + g.assist + ")" : ""}`;
+      const btnRem = document.createElement("button");
+      btnRem.textContent = "Remover";
+      btnRem.style.marginLeft = "8px";
+      btnRem.addEventListener("click", () => {
+        if (!confirm("Remover este gol?")) return;
+        const jogo = getJogo();
+        jogo.gols.splice(i,1);
+        // ajustar placar (recalcula)
+        recomputarPlacar(jogo);
+        salvarJogos(jogos);
+        atualizarUI();
+      });
+      li.appendChild(btnRem);
+      ulGols.appendChild(li);
+    });
+  }
+
+  function recomputarPlacar(jogo){
+    let a=0,b=0;
+    (jogo.gols||[]).forEach(g=>{
+      if (g.team === "A" || g.time === jogo.timeA) { /* check team property if any */ }
+    });
+    // safer: count by comparing g.time to team names
+    (jogo.gols||[]).forEach(g=>{
+      if (g.time === jogo.timeA) a++; else if (g.time === jogo.timeB) b++;
+    });
+    jogo.placarA = a;
+    jogo.placarB = b;
+  }
+
+  function formatTempo(segundos){
+    const m = Math.floor(segundos/60); const s = segundos%60;
+    return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+  }
+
+  // salvar mudanças dos inputs
+  inpTimeA.addEventListener("input", () => { const j = getJogo(); j.timeA = inpTimeA.value || "Time A"; salvarAtual(); atualizarUI(); });
+  inpTimeB.addEventListener("input", () => { const j = getJogo(); j.timeB = inpTimeB.value || "Time B"; salvarAtual(); atualizarUI(); });
+  inpPlacarA.addEventListener("input", () => { const j = getJogo(); j.placarA = Number(inpPlacarA.value) || 0; salvarAtual(); });
+  inpPlacarB.addEventListener("input", () => { const j = getJogo(); j.placarB = Number(inpPlacarB.value) || 0; salvarAtual(); });
+
+  // cronômetro
+  function iniciarCrono(){
+    const jogo = getJogo();
+    if (!jogo) return;
+    if (intervaloId) return; // já rodando localmente
+    jogo.status = "rodando";
+    salvarAtual();
+    intervaloId = setInterval(() => {
+      const j = getJogo();
+      j.cronometro.segundos = (j.cronometro.segundos || 0) + 1;
+      spanTempo.textContent = formatTempo(j.cronometro.segundos);
+      salvarAtual();
+    }, 1000);
+  }
+
+  function pausarCrono(){
+    const jogo = getJogo();
+    if (!jogo) return;
+    jogo.status = "pausado";
+    salvarAtual();
+    if (intervaloId){ clearInterval(intervaloId); intervaloId = null; }
+  }
+
+  function finalizarCrono(){
+    const jogo = getJogo();
+    if (!jogo) return;
+    jogo.status = "finalizado";
+    salvarAtual();
+    if (intervaloId){ clearInterval(intervaloId); intervaloId = null; }
+    alert("Jogo finalizado.");
+  }
+
+  // botões
+  btnIniciar.addEventListener("click", iniciarCrono);
+  btnPausar.addEventListener("click", pausarCrono);
+  btnFinalizar.addEventListener("click", finalizarCrono);
+  btnVoltar.addEventListener("click", () => { window.location.href = "jogos.html"; });
+
+  // registrar gol
+  btnRegistrarGol.addEventListener("click", () => {
+    const jogo = getJogo();
+    if (!jogo) return;
+    const timeSel = selectGolTime.value; // "A" or "B"
+    const autor = inpGolAutor.value.trim();
+    const assist = inpGolAssist.value.trim();
+
+    if (!autor) return alert("Informe o autor do gol.");
+
+    const minuto = formatTempo(jogo.cronometro.segundos || 0);
+    const timeName = (timeSel === "A") ? jogo.timeA : jogo.timeB;
+
+    // push gol
+    jogo.gols = jogo.gols || [];
+    jogo.gols.push({
+      time: timeName,
+      autor: autor,
+      assist: assist || "",
+      minuto: minuto
+    });
+
+    // atualizar placar automaticamente
+    if (timeSel === "A") jogo.placarA = (Number(jogo.placarA)||0) + 1;
+    else jogo.placarB = (Number(jogo.placarB)||0) + 1;
+
+    // limpar inputs
+    inpGolAutor.value = "";
+    inpGolAssist.value = "";
+
+    salvarAtual();
+    atualizarUI();
+  });
+
+  // se o jogo já estava rodando (em outra aba), sincronizamos e continuamos
+  function sincronizarEstado(){
+    const jogo = getJogo();
+    if (!jogo) return;
+    // se status é rodando mas este documento não tem intervalo, cria
+    if (jogo.status === "rodando" && !intervaloId){
+      // iniciar cronômetro localmente, mas sem duplicar salvos (o salvarAtual já atualiza)
+      intervaloId = setInterval(() => {
+        const j = getJogo();
+        j.cronometro.segundos = (j.cronometro.segundos || 0) + 1;
+        spanTempo.textContent = formatTempo(j.cronometro.segundos);
+        salvarAtual();
+      }, 1000);
+    }
+    // se status pausado/finalizado e temos intervalo local, limpar
+    if ((jogo.status === "pausado" || jogo.status === "finalizado" || jogo.status === "parado") && intervaloId){
+      clearInterval(intervaloId); intervaloId = null;
+    }
+    atualizarUI();
+  }
+
+  // sincronização periódica para refletir mudanças feitas em outras abas
+  setInterval(() => {
+    // recarrega jogos do storage e atualiza UI
+    jogos = carregarJogos();
+    sincronizarEstado();
+  }, 800);
+
+  // unload: limpar intervalo local para evitar fuga de referências
+  window.addEventListener("beforeunload", () => {
+    if (intervaloId) clearInterval(intervaloId);
+  });
+
+  // inicializa UI
+  atualizarUI();
+</script>
+</body>
+</html>

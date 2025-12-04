@@ -1,152 +1,45 @@
-<!-- Página de Resultados (resultados.html) -->
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARTILHEIROS - Resultados</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        header {
-            background: #4CAF50; /* Verde */
-            color: white;
-            padding: 10px;
-            text-align: center;
-            position: relative;
-        }
-        .menu-icon {
-            position: absolute;
-            left: 10px;
-            top: 10px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: white;
-            cursor: pointer;
-        }
-        .perfil-btn {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: white;
-            cursor: pointer;
-        }
-        main {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        table {
-            border-collapse: collapse;
-            width: 80%;
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        th, td {
-            padding: 12px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        tr:hover {
-            background-color: #ddd;
-        }
-        .nav-btn {
-            margin-bottom: 20px;
-        }
-        button {
-            padding: 8px 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        footer {
-            background: #4CAF50;
-            color: #fff;
-            padding: 12px 18px;
-            text-align: center;
-        }
-    </style>
+    <title>ARTILHEIROS</title>
+    <link rel="stylesheet" href="artilheiros.css">
 </head>
 <body>
-    <header>
-        <button class="menu-icon" id="menuBtn">☰</button>
-        <h2>Interclasse CELC</h2>
-        <button class="perfil-btn" onclick="location.href='../perfil-adm/perfil.html'">👤 Perfil</button>
+    <header> <button class="menu-icon" id="menuBtn">☰</button>
+      <h2>Interclasse CELC</h2>
+      <button
+        class="perfil-btn"
+        onclick="location.href='../perfil-al/perfil.html'"
+      >
+        👤 Perfil
+      </button>
     </header>
 
-    <main>
-      
-        <table id="tabelaArtilheiros">
-            <thead>
-                <tr>
-                    <th>Jogadores</th>
-                    <th>Gols</th>
-                    <th>Assistências</th>
-                    <th>Somatória (Gols + Assistências)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- A tabela será populada via JavaScript -->
-            </tbody>
-        </table>
-    </main>
+    <MAIN>
+        <table><thead>
+         <tr><th>Jogadores</th><th>Gols feitos</th><th></th></tr>
+      </thead>
+      <tbody>
+        <tr><td>José</td><td>10</td></tr><br>
+         <tr><td>José</td><td>10</td></tr><br>
+         <tr><td>José</td><td>10</td></tr><br>
+         <tr><td>José</td><td>10</td></tr><br>
+         <tr><td>José</td><td>10</td></tr><br>
+      </tbody>
+    </table>
+    </MAIN>
 
-    <footer>
-        <p>&copy;2°DSB</p>
+  <footer
+      style="
+        background: var(--verde);
+        color: #fff;
+        padding: 12px 18px;
+        text-align: center;
+      "
+    >
+      <p>&copy;2°DSB</p>
     </footer>
-
-    <script>
-        // Função para carregar dados do LocalStorage
-        function carregarDados() {
-            const dados = JSON.parse(localStorage.getItem('jogadores')) || [];
-            const tabela = document.getElementById('tabelaArtilheiros').getElementsByTagName('tbody')[0];
-            tabela.innerHTML = ''; // Limpar tabela
-
-            if (dados.length === 0) {
-                const linhaVazia = tabela.insertRow();
-                linhaVazia.insertCell(0).textContent = 'Nenhum jogador adicionado ainda.';
-                linhaVazia.insertCell(1).textContent = '';
-                linhaVazia.insertCell(2).textContent = '';
-                linhaVazia.insertCell(3).textContent = '';
-                return;
-            }
-
-            dados.forEach(jogador => {
-                const novaLinha = tabela.insertRow();
-                novaLinha.insertCell(0).textContent = jogador.nome;
-                novaLinha.insertCell(1).textContent = jogador.gols;
-                novaLinha.insertCell(2).textContent = jogador.assistencias;
-                novaLinha.insertCell(3).textContent = jogador.somatoria;
-            });
-        }
-
-        // Carregar dados ao iniciar a página
-        window.onload = carregarDados;
-    </script>
 </body>
 </html>
